@@ -17,9 +17,32 @@
 				  <p> Source for Image: <a href="https://www.cubookstore.com/p-80451-colorado-buffaloes-mini-speed-football-helmet.aspx">CU Bookstore</a> </p>
 					<hr>
 					<!-- TODO: First EJS Update -->
+					<p> Color Message:
+						<% if(color)
+						{%>
+							<%- color_msg %>
+							<% var script_text = '<script>document.body.style.backgroundColor = "#' + color + '";</script>'; %>
+							<%- script_text %>
+							<% }%>
+						</p>
+
 					
 					<form action="/home/pick_color" method="post">
 						<!-- TODO: Third EJS Update -->
+						<%
+if (data) {
+    var buttons = '';
+	data.forEach(function(item){
+  		 buttons += '<button type="submit" name="color_selection" class="btn btn-block" style="background-color:#' + item.hex_value + '" value="' + item.hex_value + '">';
+			 if(item.name){
+		       buttons += item.name + '</button>';
+		     }
+		     else{
+		    	 buttons += item.hex_value + '</button>';
+		     }
+  	 }); %>
+  	 <%- buttons %>
+<% } %>
 					</form>
 
 					<form action="/home/pick_color" method="get">
