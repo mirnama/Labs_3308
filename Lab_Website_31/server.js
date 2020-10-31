@@ -27,7 +27,7 @@ const dbConfig = {
 	port: 5432,
 	database: 'football_db',
 	user: 'postgres',
-	password: 'Samsom1@mina2'
+	password: 'Password'
 };
 
 var db = pgp(dbConfig);
@@ -96,10 +96,6 @@ app.get('/register', function(req, res) {
 });
 
 /*Add your other get/post request handlers below here: */
-
-
-app.listen(3000);
-console.log('3000 is the magic port');
 app.get('/home', function(req, res) {
   var query = 'select * from favorite_colors;';
   db.any(query)
@@ -114,49 +110,20 @@ app.get('/home', function(req, res) {
         })
         .catch(function (err) {
             console.log('error', err);
-            res.render('pages/home', {
-                my_title: 'Home Page',
+            response.render('pages/home', {
+                title: 'Home Page',
                 data: '',
                 color: '',
                 color_msg: ''
             })
         })
 });
-app.get('/home/pick_color', function(req, res) {
-  var color_choice = req.query.color_selection; // Investigate why the parameter is named "color_selection"
-  var color_options =  // Write a SQL query to retrieve the colors from the database
-  var color_message = // Write a SQL query to retrieve the color message for the selected color
-  db.task('get-everything', task => {
-        return task.batch([
-            task.any(color_options),
-            task.any(color_message)
-        ]);
-    })
-    .then(info => {
-      res.render('pages/home',{
-        my_title: "Home Page",
-        data: // Return the color options
-        color: // Return the color choice
-        color_msg: // Return the color message
-      })
-    })
-    .catch(err => {
-            console.log('error', err);
-            res.render('pages/home', {
-                my_title: 'Home Page',
-                data: '',
-                color: '',
-                color_msg: ''
-            })
-    });
-
-});
 app.post('/home/pick_color', function(req, res) {
   var color_hex = req.body.color_hex;
   var color_name = req.body.color_name;
   var color_message = req.body.color_message;
-  var insert_statement = // Write a SQL statement to insert a color into the favorite_colors table
-  var color_select = // Write a SQL statement to retrieve all of the colors in the favorite_colors table
+  var insert_statement = `insert into favorite_colors values ('${color_hex}', '${color_name}', '${color_message}');`;// Write a SQL statement to insert a color into the favorite_colors table
+  var color_select = 'select * from favorite_colors;';// Write a SQL statement to retrieve all of the colors in the favorite_colors table
 
   db.task('get-everything', task => {
         return task.batch([
@@ -167,9 +134,9 @@ app.post('/home/pick_color', function(req, res) {
     .then(info => {
       res.render('pages/home',{
         my_title: "Home Page",
-        data: // Return the color choices
-        color: // Return the hex value of the color added to the table
-        color_msg: // Return the color message of the color added to the table
+        data: info[1], // Return the color choices
+        color: color_hex,// Return the hex value of the color added to the table
+        color_msg: color_message// Return the color message of the color added to the table
       })
     })
     .catch(err => {
@@ -182,13 +149,98 @@ app.post('/home/pick_color', function(req, res) {
             })
     });
 });
+app.get('/team_stats', function(req, res) {
+  var football_games = `select visitor_name, home_score, visitor_score, to_char(game_date, 'MM-DD-YYYY') as game_date from football_games;`;
+  var wins = 'select count(*) from football_games where home_score > visitor_score;';
+  var loses = 'select count(*) from football_games where home_score < visitor_score;';
+
+  db.task('get-everything', task => {
+        return task.batch([
+            task.any(football_games),
+            task.any(wins),
+            task.any(loses)
+        ]);
+    })
+  .then(info => {
+      res.render('pages/team_stats',{
+        my_title: "Team Stats Page",
+        game_table: info[0], // Return the games table
+        twins: info[1][0].count, // Return number of wins
+        tloses: info[2][0].count // Return number of loses
+      })
+    })
+    .catch(err => {
+            console.log('error', err);
+            res.render('pages/home', {
+                my_title: 'Team Stats Page',
+                game_table: '',
+                twins: '',
+                tloses: ''
+            })
+    });
+})
+
+app.get('/player_info', function(req, res) {
+  var query = 'select id, name from football_players;';
+  db.any(query)
+        .then(function (rows) {
+            res.render('pages/player_info',{
+        my_title: "Football Player Page",
+        data: rows,
+        player: '',
+        num_of_games: ''
+      })
+
+        })
+        .catch(function (err) {
+            console.log('error', err);
+            res.render('pages/player_info', {
+                my_title: 'Football Player Pagef',
+                data: '',
+                player: '',
+                num_of_games: ''
+            })
+        })
+})
+
+app.get('/player_info/post', function(req, res) {
+  var player_id = req.query.player_choice;
+  var players = 'select * from football_players;';
+  var player_info = `select * from football_players where id = ${player_id};`;
+  var gamesInfo = `select count(g.*) from football_games g, 
+                              (select id from football_players where id = ${player_id}) p 
+                              where p.id = any(g.players);`; // this query will retrieve that total number of games for the selected player
+
+  db.task('get-everything', task => {
+        return task.batch([
+            task.any(players),
+            task.any(player_info),
+            task.any(gamesInfo)
+        ]);
+    })
+        .then(info => {
+            res.render('pages/player_info',{
+        my_title: "Football Player Page",
+        data: info[0],
+        player: info[1][0],
+        num_of_games: info[2][0].count
+      })
+
+        })
+        .catch( err => {
+            console.log('error', err);
+            res.render('pages/player_info', {
+                my_title: 'Football Player Pagef',
+                data: '',
+                player: '',
+                num_of_games: ''
+            })
+        })
+})
 
 
-
-
-
-
-
+app.listen(3000);
+console.log('3000 is the magic port');
 
 
 
