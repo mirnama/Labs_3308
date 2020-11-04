@@ -26,16 +26,19 @@
 						that ran onload for Lab 5.  We are doing the same kind of operations we had in Lab 5, but we are instead having
 						everything handled via server-side scriptes
 			-->
-			<% data.forEach(function(information)){ %>
-			<tr>
-				<td><%=information.game_date %></td>
-				<td><%=information.visitor_name%></td>
-				<td><%=information.home_score%></td>
-				<td><%=information.visitor_score%></td>
-				<td><% if (information.home_score > visitor_score%){%> CU Boulder <%} else {%> <%= information.visitor_score %> <%}%></td>
-			</tr>
-
-		<%});%>
+			<%
+			if (game_table) {
+    			var rows = '';
+				game_table.forEach(function(item){
+  		 			rows += '<tr><td>' + item.game_date + '</td><td>' + item.visitor_name + '</td><td>'+ item.home_score +'</td><td>'+ item.visitor_score +'</td><td>';
+  		 			if (item.home_score > item.visitor_score) {
+  		 				rows += 'CU Boulder</td></tr>';
+  		 			} else {
+  		 				rows += item.visitor_name + '</td></tr>';
+  		 			}
+				}); %>
+  	 		<%- rows %>
+			<% } %>
 		</table>
 		<br>
 		<table class="table text-center">
@@ -44,9 +47,9 @@
 				<th>Losses</th>
 			</tr>
 			<tr>
-				<td> <!-- TODO: Display the total number of wins here.  
+				<td> <%- wins %> <!-- TODO: Display the total number of wins here.  
 							    This value should come from your server.js files query, don't calculate it in this file! --></td>
-				<td> <!-- TODO: Display the total number of losses here.  
+				<td> <%- loses %> <!-- TODO: Display the total number of losses here.  
 							    This value should come from your server.js files query, don't calculate it in this file! --></td>
 			</tr>
 		</table>
