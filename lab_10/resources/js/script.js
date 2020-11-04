@@ -9,6 +9,7 @@ function formatDate(date, month, year)
 function getDayofWeek(date, month, year){
   var week_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   dayOfWeek =  week_names[new Date([month,date,year].join('-')).getDay()];
+
 }
 function getFarenheitTemp(temp){
   return (9*temp/5)+32;
@@ -16,9 +17,21 @@ function getFarenheitTemp(temp){
 
 //run when the document object model is ready for javascript code to execute
 $(document).ready(function() {
-  var url ='https://api.weatherstack.com/forecast?access_key=5bc82451636190abd9d7afe6fe9b20b5&query=Boulder'; //Place your weatherstack API Call Here - access_key to be used: 5bc82451636190abd9d7afe6fe9b20b5
+  var url ='https://api.weatherstack.com/forecast?access_key=5bc82451636190abd9d7afe6fe9b20b5&query=Boulder&units=f&forecast_days=6'; //Place your weatherstack API Call Here - access_key to be used: 5bc82451636190abd9d7afe6fe9b20b5
 
   $.ajax({url:url, dataType:"jsonp"}).then(function(data) {
+    var current_date = new Date(data.location.localtime);
+    console.log(data);//Review all of the data returned
+    console.log("Current Temp: " + data.current.temperature);//View Today's Temp
+    document.getElementById("image_today").src = data.current.weather_icons[0];
+    document.getElementById("temp_today").innerHTML = data.current.temperature+"F";
+    document.getElementById("heading").innerHTML = "Today's Weather Forecast - " + data.location.name ;
+    document.getElementById("precip_today").innerHTML = data.current.precip+"%";
+    document.getElementById("humidity_today").innerHTML = data.current.humidity+"%";
+    document.getElementById("wind_today").innerHTML = data.current.wind_speed;
+    document.getElementById("summary_today").innerHTML = data.current.weather_descriptions[0];
+    document.getElementById("local_time").innerHTML = data.location.localtime;
+    
     /*
       Read the current weather information from the data point values [https://weatherstack.com/documentation] to
       update the webpage for today's weather:
@@ -40,7 +53,7 @@ $(document).ready(function() {
 
       7. wind_today : This will be updated to match the current wind speed.
 
-      8. summary_today: This will be updated to match the current summary for the day's weather.
+      8. summary_today: This will be updated to match the current summary for the day's weather.bf
 
     */
     //helper function - to be used to get the key for each of the 5 days in the future when creating cards for forecasting weather
@@ -77,37 +90,39 @@ $(document).ready(function() {
       <Hint2 - To add the cards to the HTML> - Make sure to use string concatenation to add the html code for the daily weather cards.  This should
       be set to the innerHTML for the 5_day_forecast.
     */
+    for (var i = 1; i < 6; i++) {
+      var day = getKey(i);
+      console.log(day);
+      var dayOfWeek = 
+      
+      document.getElementById("5_day_forecast").innerHTML +=`<div style="width: 20%;">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">`+ day.date +`  </h5>
+            <p class="card-text">High:`+day.maxtemp+ " F" + `<!--List Temperature High --> <br>
+              Low:`+day.mintemp+ " F"+` <!-- List Temperature Low --><br>
+              Sunrise:` + day.astro.sunrise +`<!-- List Time of Sunrise --><br>
+              Sunset:` + day.astro.sunset + `<!-- List Time of Sunset --></p>
+          </div>
+        </div>
+      </div>`; 
+    }
+
   })
 });
 
-// {
-//     // Use IntelliSense to learn about possible attributes.
-//     // Hover to view descriptions of existing attributes.
-//     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-//     "version": "0.2.0",
-//     "configurations": [
-//         {
-//             "type": "pwa-chrome",
-//             "request": "launch",
-//             "name": "Launch Chrome against localhost",
-//             "url": "http://localhost:5500",
-//             "webRoot": "${workspaceFolder}"
-//         }
-//     ]
-// } 
 
-console.log(current_time.getDay());  var current_time = data.location.localtime;//Retrieve the current timestamp
-		console.log(current_time.getDay()); 
-$(document).ready(function () {
-  var url = ''; //Place your weatherstack API Call Here
-  $.ajax({ url: url, dataType: "jsonp" }).then(function (data) {
-    console.log(data);//Review all of the data returned
-    console.log("Current Temp: " + data.current.temperature);//View Today's Temp
-    var current_time = data.location.localtime;//Retrieve the current timestamp
-    var current_date = new Date(data.location.localtime)
-    console.log(current_time.getDay());
-  })
-});
+
+
+
+
+
+
+
+
+
+
+
 
 
 
